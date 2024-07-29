@@ -1,0 +1,8 @@
+app:
+  name: pod-monitor
+minio:
+  accesskey: admin
+  secretkey: minio@Yunli123
+  defaultBucket: ${spring.application.name}
+  endpoint: http://172.30.1.111:9000
+  prefix: /oss
