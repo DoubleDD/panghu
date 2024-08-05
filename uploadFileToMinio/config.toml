@@ -1,0 +1,7 @@
+[minio]
+bucket = "test"
+endpoint = "172.30.1.111:9000"
+accessKeyID = "admin"
+secretAccessKey = "minio@Yunli123"
+
+
