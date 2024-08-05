@@ -15,6 +15,7 @@ var minioClient *minio.Client
 var coreClient *minio.Core
 
 func init() {
+	log.Println("初始化minio配置")
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
 	err := viper.ReadInConfig()
@@ -22,16 +23,22 @@ func init() {
 		fmt.Println(err)
 		return
 	}
-	bucketName = viper.GetString("bucket")
-	endpoint = viper.GetString("endpoint")
-	accessKeyID = viper.GetString("accessKeyID")
-	secretAccessKey = viper.GetString("secretAccessKey")
+	bucketName = viper.GetString("minio.bucket")
+	endpoint = viper.GetString("minio.endpoint")
+	accessKeyID = viper.GetString("minio.accessKeyID")
+	secretAccessKey = viper.GetString("minio.secretAccessKey")
 
-	bucketCheck(bucketName)
+	log.Println("minio配置:")
+	log.Println("\tbucket: \t", bucketName)
+	log.Println("\tendpoint: \t", endpoint)
+	log.Println("\taccessKeyID: \t", accessKeyID)
+	log.Println("\tsecretAccessKey:", secretAccessKey)
 
 	// 初始化minioClient
 	coreClient = minioCore(endpoint, accessKeyID, secretAccessKey)
 	minioClient = coreClient.Client
+
+	bucketCheck(bucketName)
 }
 
 func minioCore(endpoint, accessKeyID, secretAccessKey string) *minio.Core {
