@@ -1,0 +1,30 @@
+use minio::s3::{Client, Region};
+use tokio;
+use std::fs;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let endpoint = "http://localhost:9000";
+    let region = Region::Custom {
+        region: "us-east-1".to_string(),
+        endpoint: endpoint.to_string(),
+    };
+    let access_key = "YOUR_ACCESS_KEY";
+    let secret_key = "YOUR_SECRET_KEY";
+
+    let client = Client::new(endpoint, region, access_key, secret_key);
+
+    let bucket_name = "mybucket";
+    let object_name = "myobject";
+    let file_path = "path/to/your/file";
+
+    let data = fs::read(file_path)?;
+
+    client
+        .put_object(bucket_name, object_name, &data, "application/octet-stream")
+        .await?;
+
+    println!("File uploaded successfully");
+
+    Ok(())
+}
