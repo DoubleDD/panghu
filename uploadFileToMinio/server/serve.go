@@ -24,6 +24,7 @@ func initHandler(mux *http.ServeMux) {
 // 将视频转成m3u8格式，并上传至minio
 func mp42m3u8(w http.ResponseWriter, r *http.Request) {
 	log.Println("接口测试OK")
+	log.Panic("Panic 测试")
 	_OK(w, "接口测试OK")
 }
 

@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
@@ -30,7 +31,8 @@ func _API(next func(http.ResponseWriter, *http.Request), method ...string) func(
 		if methodAllowed || len(method) == 0 {
 			next(w, r)
 		} else {
-			http.Error(w, "Invalid request method.", http.StatusMethodNotAllowed)
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			_ERROR(w, 405, r.Method+"方法不允许")
 		}
 	}
 }
@@ -65,6 +67,7 @@ func out(w http.ResponseWriter, resp Response) {
 	// 将Response实例序列化为JSON字符串
 	jsonResp, err := json.Marshal(resp)
 	if err != nil {
+		log.Println("Error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
