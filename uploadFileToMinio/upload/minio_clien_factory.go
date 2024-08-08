@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var BucketName, endpoint, accessKeyID, secretAccessKey string
+var BucketName, Endpoint, accessKeyID, secretAccessKey string
 var minioClient *minio.Client
 var coreClient *minio.Core
 
@@ -24,18 +24,18 @@ func init() {
 		return
 	}
 	BucketName = viper.GetString("minio.bucket")
-	endpoint = viper.GetString("minio.endpoint")
+	Endpoint = viper.GetString("minio.endpoint")
 	accessKeyID = viper.GetString("minio.accessKeyID")
 	secretAccessKey = viper.GetString("minio.secretAccessKey")
 
 	log.Println("minio配置:")
 	log.Println("\tbucket: \t", BucketName)
-	log.Println("\tendpoint: \t", endpoint)
+	log.Println("\tendpoint: \t", Endpoint)
 	log.Println("\taccessKeyID: \t", accessKeyID)
 	log.Println("\tsecretAccessKey:", secretAccessKey)
 
 	// 初始化minioClient
-	coreClient = minioCore(endpoint, accessKeyID, secretAccessKey)
+	coreClient = minioCore(Endpoint, accessKeyID, secretAccessKey)
 	minioClient = coreClient.Client
 
 	bucketCheck(BucketName)

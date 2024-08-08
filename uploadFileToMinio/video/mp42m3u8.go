@@ -29,7 +29,8 @@ func Convert(inputFile, outputDir string) (string, string, error) {
 	}
 	reg := regexp.MustCompile(`/{2,}`)
 	// 将输出写入文件
-	m3u8File := reg.ReplaceAllString(targetDir+"/index.m3u8", "/")
+	m3u8FileName := "index.m3u8"
+	m3u8File := reg.ReplaceAllString(targetDir+"/"+m3u8FileName, "/")
 	segmentFile := reg.ReplaceAllString(targetDir+"/index%05d.ts", "/")
 
 	// 重定向标准输出到文件
@@ -50,7 +51,7 @@ func Convert(inputFile, outputDir string) (string, string, error) {
 
 	fmt.Println("Conversion completed successfully.")
 	fmt.Println("\n", m3u8File)
-	return m3u8File, targetDir, nil
+	return m3u8FileName, targetDir, nil
 }
 
 func run(cmd *exec.Cmd) {

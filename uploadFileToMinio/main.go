@@ -29,5 +29,5 @@ func localTool() {
 	video.Convert(localFile, minioPath)
 
 	// 将转码后的上传到minio
-	upload.MultipartUpload(minioPath, minioPath)
+	upload.ParallelUpload(minioPath, minioPath)
 }

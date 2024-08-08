@@ -5,16 +5,40 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"mime"
 	"os"
 	"regexp"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/minio/minio-go/v7"
 )
 
-func MultipartUpload(filePath, prefixPath string) {
+// goroutines 文件分片上传
+//
+// Args:
+//
+//	filePath: 文件/目录
+//	minioPath: minio 上面的路径，可以是目录，也可以是文件名
+func ParallelUpload(filePath, minioPath string) {
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go multipartUpload(filePath, minioPath, &wg)
+	wg.Wait()
+}
+
+// goroutines 文件分片上传
+//
+// Args:
+//
+//	filePath: 文件/目录
+//	minioPath: minio 上面的路径，可以是目录，也可以是文件名
+//	wg: 协程计数器
+func multipartUpload(filePath, minioPath string, wg *sync.WaitGroup) {
+	defer wg.Done()
+
 	// 开始计时
 	timeStart := time.Now()
 
@@ -41,12 +65,17 @@ func MultipartUpload(filePath, prefixPath string) {
 		// 遍历目录内容并打印文件名
 		for _, fileInfo := range fileInfos {
 			fileName := normalizeSlashes(filePath + "/" + fileInfo.Name())
-			objectName := normalizeSlashes(prefixPath + "/" + fileInfo.Name())
-			MultipartUpload(fileName, objectName)
+			objectName := normalizeSlashes(minioPath + "/" + fileInfo.Name())
+			wg.Add(1)
+			go multipartUpload(fileName, objectName, wg)
 		}
 	} else {
 		// 上传文件,采用分片上传
-		uploadFileWithM(filePath, prefixPath)
+		if strings.Contains(minioPath, fileInfo.Name()) {
+			uploadFileWithM(filePath, minioPath)
+		} else {
+			uploadFileWithM(filePath, minioPath+"/"+fileInfo.Name())
+		}
 	}
 
 	// 计时结束
@@ -55,8 +84,8 @@ func MultipartUpload(filePath, prefixPath string) {
 	elapsed := timeEnd.Sub(timeStart)
 	fmt.Printf("文件上传总耗时 %vms\n", elapsed.Milliseconds())
 	fmt.Println("File uploaded successfully.")
-
 }
+
 func uploadFileWithM(fileName, objectName string) {
 	// 分片大小 (例如：5MB)
 	chunkSize := int64(10 * 1024 * 1024)
@@ -82,7 +111,15 @@ func uploadFileWithM(fileName, objectName string) {
 	chunkNumber := (fileSize + chunkSize - 1) / chunkSize
 	log.Printf("上传文件 %v  分配 %d 个任务", fileName, chunkNumber)
 	// 分片上传可选参数
-	putOptions := createPutOptions()
+	dotIndex := strings.LastIndex(fileName, ".")
+	fileContentType := "application/octet-stream"
+	if dotIndex > 0 {
+		extension := fileName[dotIndex:]
+		fileContentType = mime.TypeByExtension(extension)
+		fmt.Println("--------------------------------------------------------------")
+		fmt.Println("文件:", fileName, "\n扩展名:", extension, "\n媒体类型:", fileContentType)
+	}
+	putOptions := minio.PutObjectOptions{ContentType: fileContentType}
 
 	// 分片上传
 	uploadID, err := coreClient.NewMultipartUpload(context.Background(), BucketName, objectName, putOptions)
