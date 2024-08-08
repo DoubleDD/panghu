@@ -43,6 +43,15 @@ type Response struct {
 	Data    interface{} `json:"data,omitempty"`
 }
 
+func _ERROR_DATA(w http.ResponseWriter, msg string, data interface{}) {
+	// 创建一个Response实例
+	resp := Response{
+		Code:    500,
+		Message: msg,
+		Data:    data, // 可以是任意类型
+	}
+	out(w, resp)
+}
 func _ERROR(w http.ResponseWriter, code int, msg string) {
 	// 创建一个Response实例
 	resp := Response{
