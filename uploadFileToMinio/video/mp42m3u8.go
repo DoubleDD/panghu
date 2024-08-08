@@ -5,7 +5,9 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
+	"strings"
 )
 
 /*
@@ -13,16 +15,22 @@ mp4 -> m3u8
 
 通过ffmpeg 实现
 */
-func Convert(inputFile, outputDir string) {
+func Convert(inputFile, outputDir string) (string, string, error) {
+	fileName := filepath.Base(inputFile)
+	dotIndex := strings.LastIndex(fileName, ".")
+	if dotIndex > 0 {
+		fileName = fileName[:dotIndex]
+	}
+	targetDir := outputDir + "/" + fileName
 	// 创建输出目录如果不存在
-	err := os.MkdirAll(outputDir, os.ModePerm)
+	err := os.MkdirAll(targetDir, os.ModePerm)
 	if err != nil {
 		log.Fatalf("Error creating output directory: %s", err)
 	}
 	reg := regexp.MustCompile(`/{2,}`)
 	// 将输出写入文件
-	m3u8File := reg.ReplaceAllString(outputDir+"/index.m3u8", "/")
-	segmentFile := reg.ReplaceAllString(outputDir+"/index%05d.ts", "/")
+	m3u8File := reg.ReplaceAllString(targetDir+"/index.m3u8", "/")
+	segmentFile := reg.ReplaceAllString(targetDir+"/index%05d.ts", "/")
 
 	// 重定向标准输出到文件
 	run(exec.Command("ffmpeg",
@@ -41,6 +49,8 @@ func Convert(inputFile, outputDir string) {
 	run(exec.Command("ls", "-lh", outputDir))
 
 	fmt.Println("Conversion completed successfully.")
+	fmt.Println("\n", m3u8File)
+	return m3u8File, targetDir, nil
 }
 
 func run(cmd *exec.Cmd) {

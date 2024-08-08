@@ -17,31 +17,31 @@ func UploadError(gc_path, hp_path string) {
 	// 上传gc日志文件
 	// gc_path = "/Users/kedong/code/com.gitee/uploadFileToMinio/test.log"
 	objectName := filepath.Base(gc_path)
-	uploadFile("jvm_oom/"+timeStr+"/gc.log/"+objectName, gc_path)
+	SimpleUpload("jvm_oom/"+timeStr+"/gc.log/"+objectName, gc_path)
 
 	// 上传heapdump文件
-	uploadFile("jvm_oom/"+timeStr+"/heapdump.bin", hp_path)
+	SimpleUpload("jvm_oom/"+timeStr+"/heapdump.bin", hp_path)
 }
 
-func uploadFile(objectName string, filePath string) {
+func SimpleUpload(objectName string, filePath string) {
 	ctx := context.Background()
-	err := minioClient.MakeBucket(ctx, bucketName, minio.MakeBucketOptions{})
+	err := minioClient.MakeBucket(ctx, BucketName, minio.MakeBucketOptions{})
 	if err != nil {
 		// Check to see if we already own this bucket (which happens if you run this twice)
-		exists, errBucketExists := minioClient.BucketExists(ctx, bucketName)
+		exists, errBucketExists := minioClient.BucketExists(ctx, BucketName)
 		if errBucketExists == nil && exists {
-			log.Printf("We already own %s\n", bucketName)
+			log.Printf("We already own %s\n", BucketName)
 		} else {
 			log.Fatalln(err)
 		}
 	} else {
-		log.Printf("Successfully created %s\n", bucketName)
+		log.Printf("Successfully created %s\n", BucketName)
 	}
 
 	contentType := "application/octet-stream"
 
 	// Upload the test file with FPutObject
-	info, err := minioClient.FPutObject(ctx, bucketName, objectName, filePath, minio.PutObjectOptions{ContentType: contentType})
+	info, err := minioClient.FPutObject(ctx, BucketName, objectName, filePath, minio.PutObjectOptions{ContentType: contentType})
 	if err != nil {
 		log.Fatalln(err)
 	}

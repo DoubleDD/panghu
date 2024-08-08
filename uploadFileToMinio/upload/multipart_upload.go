@@ -59,7 +59,7 @@ func MultipartUpload(filePath, prefixPath string) {
 }
 func uploadFileWithM(fileName, objectName string) {
 	// 分片大小 (例如：5MB)
-	chunkSize := int64(5 * 1024 * 1024)
+	chunkSize := int64(10 * 1024 * 1024)
 
 	// 读取文件并分割
 	file, err := os.Open(fileName)
@@ -85,13 +85,13 @@ func uploadFileWithM(fileName, objectName string) {
 	putOptions := createPutOptions()
 
 	// 分片上传
-	uploadID, err := coreClient.NewMultipartUpload(context.Background(), bucketName, objectName, putOptions)
+	uploadID, err := coreClient.NewMultipartUpload(context.Background(), BucketName, objectName, putOptions)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer func() {
 		if err != nil {
-			coreClient.RemoveIncompleteUpload(context.Background(), bucketName, objectName)
+			coreClient.RemoveIncompleteUpload(context.Background(), BucketName, objectName)
 		}
 	}()
 
@@ -120,7 +120,7 @@ func uploadFileWithM(fileName, objectName string) {
 		if end > fileSize {
 			end = fileSize - 1
 		}
-		go uploadPart(file, i+1, start, end, bucketName, objectName, uploadID, partsChan)
+		go uploadPart(file, i+1, start, end, BucketName, objectName, uploadID, partsChan)
 	}
 
 	wg.Wait()
@@ -129,7 +129,7 @@ func uploadFileWithM(fileName, objectName string) {
 	sort.Sort(ByPartNumber(parts))
 
 	// 完成 multipart upload
-	_, err = coreClient.CompleteMultipartUpload(context.Background(), bucketName, objectName, uploadID, parts, putOptions)
+	_, err = coreClient.CompleteMultipartUpload(context.Background(), BucketName, objectName, uploadID, parts, putOptions)
 	if err != nil {
 		log.Fatal(err)
 	}
