@@ -23,6 +23,7 @@ import (
 //	filePath: 文件/目录
 //	minioPath: minio 上面的路径，可以是目录，也可以是文件名
 func ParallelUpload(filePath, minioPath string) {
+	MinioInit()
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go multipartUpload(filePath, minioPath, &wg)
