@@ -9,25 +9,23 @@ import (
 )
 
 func main() {
-	server.Start(7700)
-}
-
-func localTool() {
 	if len(os.Args) == 1 {
 		fmt.Println("缺少参数")
 		return
 	}
-	localFile := os.Args[1]
-	minioPath := os.Args[2]
-	// localFile := "./upload/upload.go"
-	// minioPath := "/abc"
+	fnType := os.Args[1]
+	localFile := os.Args[2]
+	minioPath := os.Args[3]
 
-	// 上传错误信息
-	// upload.UploadError(localFile, minioPath)
+	switch fnType {
+	case "server":
+		server.Start(7700)
+	case "m3u8":
+		video.Convert(localFile, minioPath)
+	case "upload":
+		upload.ParallelUpload(localFile, minioPath)
+	default:
+		fmt.Println("参数错误")
 
-	// 视频转码
-	video.Convert(localFile, minioPath)
-
-	// 将转码后的上传到minio
-	upload.ParallelUpload(minioPath, minioPath)
+	}
 }
