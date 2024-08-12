@@ -1,13 +1,17 @@
 package video
 
 import (
+	"bytes"
+	"context"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 )
 
 /*
@@ -58,14 +62,28 @@ func run(cmd *exec.Cmd) {
 	// 打印将要执行的命令
 	fmt.Printf("执行命令: \n%s\n", cmd.String())
 
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	// 将命令的标准输出和标准错误输出连接到标准输出和标准错误输出
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	var outb, errb bytes.Buffer
+	cmd.Stdout = io.MultiWriter(&outb, os.Stdout)
+	cmd.Stderr = io.MultiWriter(&errb, os.Stderr)
 
 	// 启动命令
-	if err := cmd.Start(); err != nil {
-		fmt.Printf("Error starting command: %v\n", err)
+	go func() {
+		if err := cmd.Start(); err != nil {
+			fmt.Printf("Error starting command: %v\n", err)
+			return
+		}
+	}()
+
+	select {
+	case <-ctx.Done():
+		log.Println("Timed out")
+		cmd.Process.Kill()
 		return
+	default:
 	}
 
 	// 等待命令完成
