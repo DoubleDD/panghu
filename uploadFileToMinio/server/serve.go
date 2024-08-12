@@ -3,7 +3,7 @@ package server
 import (
 	"log"
 	"minioUploadFile/server/common"
-	routehandle "minioUploadFile/server/route_handle"
+	rh "minioUploadFile/server/route_handle"
 	"minioUploadFile/upload"
 	"net/http"
 	"strconv"
@@ -26,8 +26,8 @@ func initHandler(mux *http.ServeMux) {
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		common.OK(w, "ok")
 	})
-	mux.HandleFunc("/video/2m3u8", routehandle.Mp42m3u8)
-	mux.HandleFunc("/file/upload", common.API(routehandle.FileUpload, "POST", "PUT"))
+	mux.HandleFunc("/video/2m3u8", rh.Mp42m3u8)
+	mux.HandleFunc("/file/upload", common.API(rh.FileUpload, "POST", "PUT"))
 }
 
 func serverInit() {
