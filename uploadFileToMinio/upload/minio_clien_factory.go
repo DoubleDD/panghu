@@ -14,6 +14,10 @@ var BucketName, Endpoint, accessKeyID, secretAccessKey string
 var minioClient *minio.Client
 var coreClient *minio.Core
 
+func GetConfig()  {
+	
+}
+
 func MinioInit() {
 	log.Println("初始化minio配置")
 	viper.SetConfigName("config")

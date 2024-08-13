@@ -39,7 +39,7 @@ func Convert(inputFile, outputDir string) (string, string, error) {
 
 	// 重定向标准输出到文件
 	run(exec.Command("ffmpeg",
-		"-i", inputFile, // 从标准输入读取
+		"-i", inputFile,
 		"-c:v", "h264",
 		"-flags", "+cgop",
 		"-g", "30",

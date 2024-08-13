@@ -28,6 +28,7 @@ func initHandler(mux *http.ServeMux) {
 	})
 	mux.HandleFunc("/video/2m3u8", rh.Mp42m3u8)
 	mux.HandleFunc("/file/upload", common.API(rh.FileUpload, "POST", "PUT"))
+	mux.HandleFunc("/minio/upload", common.POST(rh.MinioUpload))
 }
 
 func serverInit() {
