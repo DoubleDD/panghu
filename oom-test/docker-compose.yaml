@@ -1,0 +1,7 @@
+services:
+  oom-test:
+    image: oom-test:latest
+    build:
+      context: .
+    ports:
+      - 8080:8080
