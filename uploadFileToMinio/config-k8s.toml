@@ -1,0 +1,7 @@
+[minio]
+bucket = "test"
+endpoint = "host.docker.internal:9000"
+accessKeyID = "admin"
+secretAccessKey = "minio@Yunli123"
+
+

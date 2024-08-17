@@ -2,7 +2,7 @@
 
 # 定义要编译的目标操作系统和架构
 targets=(
-    "linux amd64"
+    # "linux amd64"
     "linux arm64"
     "darwin arm64"
 )

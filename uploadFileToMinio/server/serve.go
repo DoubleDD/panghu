@@ -26,6 +26,7 @@ func initHandler(mux *http.ServeMux) {
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		common.OK(w, "ok")
 	})
+	mux.HandleFunc("/k8s/pod/info", rh.K8sPodInfo)
 	mux.HandleFunc("/video/2m3u8", rh.Mp42m3u8)
 	mux.HandleFunc("/file/upload", common.API(rh.FileUpload, "POST", "PUT"))
 	mux.HandleFunc("/minio/upload", common.POST(rh.MinioUpload))
