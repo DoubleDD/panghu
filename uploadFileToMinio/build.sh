@@ -4,7 +4,7 @@
 targets=(
     # "linux amd64"
     "linux arm64"
-    "darwin arm64"
+    # "darwin arm64"
 )
 
 # 循环遍历每个目标

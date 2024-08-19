@@ -7,13 +7,13 @@ import (
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
 )
 
-func PodInfo() *v1.Pod {
+func PodInfo() *v1.PodList {
 	var config *rest.Config
 	var err error
 
@@ -33,8 +33,11 @@ func PodInfo() *v1.Pod {
 		}
 	}
 
-	// 创建一个新的 Kubernetes 客户端
-	clientset, err := kubernetes.NewForConfig(config)
+	config.APIPath = "api"
+	config.GroupVersion = &v1.SchemeGroupVersion
+	config.NegotiatedSerializer = scheme.Codecs
+
+	restClient, err := rest.RESTClientFor(config)
 	if err != nil {
 		panic(err)
 	}
@@ -49,15 +52,20 @@ func PodInfo() *v1.Pod {
 	}
 
 	// 获取当前 Pod 的详细信息
-	pod, err := clientset.CoreV1().Pods(namespace).Get(context.TODO(), podName, metav1.GetOptions{})
+	result := &v1.PodList{}
+	err = restClient.Get().
+		Namespace(namespace).
+		Resource("pods").
+		VersionedParams(&metav1.ListOptions{Limit: 500}, scheme.ParameterCodec).
+		Do(context.TODO()).
+		Into(result)
 	if err != nil {
 		panic(err)
 	}
 
 	// 打印 Pod 的信息
-	fmt.Printf("Pod Name: %s\n", pod.Name)
-	fmt.Printf("Pod Namespace: %s\n", pod.Namespace)
-	fmt.Printf("Pod Status: %s\n", pod.Status.Phase)
-	fmt.Printf("Pod Labels: %v\n", pod.Labels)
-	return pod
+	for _, d := range result.Items {
+		fmt.Printf("namespace:%v \t name:%v \t status:%+v\n", d.Namespace, d.Name, d.Status.Phase)
+	}
+	return result
 }
