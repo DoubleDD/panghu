@@ -14,7 +14,7 @@ spec:
       labels:
         name: minio-upload-file
     spec:
-      serviceAccountName: default
+      serviceAccountName: my-service-account
       containers:
         - name: minio-upload-file-container
           image: minio-upload-file:v1
